@@ -1,34 +1,8 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+/*** 计时器*/Handler handler = new Handler(){public void handleMessage(Message msg){         // handle messageswitch (msg.what) {case 1:updateView();if(!is_time_stop){//判断计时器是否停止Message message = handler.obtainMessage(1);handler.sendMessageDelayed(message, 1000);      // send message}break;}super.handleMessage(msg);}};private boolean is_time_stop = false;//计时器是否停止private int timeusedinsec = 0;// 秒表时间private String time_str = "";// 秒表时间字符串// 开始计时private void startTimer(){is_time_stop = false;//获取保存在缓存中的上一次的计时时间String timeStr = aCache.getAsString(CacheParam.CACHE_TRAINING_USETIME);if(!TextUtils.isEmpty(timeStr)){//判断缓存中的值是否存在timeusedinsec = Integer.valueOf(timeStr);}else {timeusedinsec = 0;}Message message = handler.obtainMessage(1);handler.sendMessageDelayed(message, 1000);      // send message}//停止计时private void stopTimer(){is_time_stop = true;//停止计时器时保存 时间到缓存中aCache.put(CacheParam.CACHE_TRAINING_USETIME,String.valueOf(timeusedinsec),CacheParam.CACHE_TIME_TRAINING);}//重新计时private void resetTimer(){is_time_stop = false;timeusedinsec = 0;aCache.put(CacheParam.CACHE_TRAINING_USETIME,String.valueOf(timeusedinsec),CacheParam.CACHE_TIME_TRAINING);Message message = handler.obtainMessage(1);handler.sendMessageDelayed(message, 1000);}// 更新时间viewprivate void updateView() {timeusedinsec++;int minute = (int) (timeusedinsec / 60)%60;int second = (int) (timeusedinsec % 60);time_str = "";if (minute
+< 10) {time_str += "0" + minute;}else {time_str += "" + minute;}if (second < 10){time_str +=":0"+second;} else{time_str +=":"+second;}textview.setText(time_str);}
 
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="cn.edu.swfu.myapplication2.MainActivity">
+    private ACache aCache;private TextView textView;@Overrideprotected void onResume() {super.onResume();textView = (TextView)findViewById(R.id.header_textview);// 这里的aCache用于缓存计时器时间可以在退出Activity后重新进入时还能从上一次时间开始计时// ACache 是文件缓存的工具类在网上可以找到文件缓存相关的教程，本例可以将缓存的代码删除不影响计算器功能aCache = ACache.get(TrainingActivity.this);startTimer();}
 
-    <!-- view for AdMob Interstitial Ad -->
-    <TextView
-        android:id="@+id/app_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="50dp"
-        android:text="@string/interstitial_ad_sample"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+    @Overrideprotected void onPause() {super.onPause();stopTimer();//activity 停止时调用 可保存计时时间}
 
-    <TextView
-        android:id="@+id/level"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/app_title"
-        android:layout_centerHorizontal="true"
-        android:text="@string/start_level"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
-    //测试开始
-    <Button
-        android:id="@+id/next_level_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:text="@string/next_level" />
-</RelativeLayout>
+    @Overrideprotected void onDestroy() {super.onDestroy();stopTimer();}
